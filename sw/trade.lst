@@ -1,0 +1,63 @@
+00000000  80010437  li   s0, 0x80010000
+00000004  80000137  li   sp, 0x80000000
+00000008  80000337  li   t1, 0x80000000
+0000000c  06430193  addi gp, t1, MINIMO
+00000010  0ff30693  addi a3, t1, MAXIMO
+00000014  00018613  mv   a2, gp
+00000018  00068713  mv   a4, a3
+0000001c  00000493  li   s1, 0
+00000020  07f00513  li   a0, COMPRAR
+00000024  0bf00093  li   ra, VENDER
+00000028  00008793  mv   a5, ra
+0000002c  04f00293  li   t0, ANCLA_ORDEN
+00000030  00c42583  lw   a1, 12(s0)             # primer precio p0 (bloqueante)
+00000034  08b67463  bgeu a2, a1, piso           # p0 <= 100: ya es el minimo (fase 2)
+00000038  0ae5f263  bgeu a1, a4, techo          # p0 >= 255: ya es el maximo (fase 2)
+0000003c  00f42423  sw   a5, 8(s0)              # DECISION del primer tick (fuera), antes de armar el ancla
+00000040  00b12023  sw   a1, 0(sp)
+00000044  00058213  mv   tp, a1                 # ancla abajo: p0
+00000048  01d58393  addi t2, a1, ANCLA          # ancla arriba: p0 + ANCLA, pero no mas que 255: asi
+0000004c  00d3e463  bltu t2, a3, espera_ancla   # "p >= ancla arriba" cubre tambien "p >= 255"
+00000050  00068393  mv   t2, a3
+00000054  00c42583  lw   a1, 12(s0)             # NUEVO (bloqueante): t1 + precio
+00000058  0075fa63  bgeu a1, t2, ancla_alto     # p >= p0 + ANCLA (o p >= 255)
+0000005c  02b27a63  bgeu tp, a1, ancla_bajo     # p <= p0 (o p <= 100)
+00000060  00f42423  sw   a5, 8(s0)              # DECISION (no cambia)
+00000064  00b12023  sw   a1, 0(sp)
+00000068  fedff06f  j    espera_ancla
+0000006c  06e5f863  bgeu a1, a4, techo          # p >= 255: aparece el maximo (pasa a la fase 2)
+00000070  00078a63  beqz a5, ancla_tengo        # ya compro la parte: sigue "mantener"
+00000074  00542423  sw   t0, 8(s0)              # DECISION = comprar 15, una sola vez
+00000078  00000793  li   a5, 0                  # desde el tick siguiente: mantener
+0000007c  00b12023  sw   a1, 0(sp)
+00000080  fd5ff06f  j    espera_ancla
+00000084  00f42423  sw   a5, 8(s0)              # DECISION = mantener
+00000088  00b12023  sw   a1, 0(sp)
+0000008c  fc9ff06f  j    espera_ancla
+00000090  02b67663  bgeu a2, a1, piso           # p <= 100: aparece el minimo (pasa a la fase 2)
+00000094  00142423  sw   ra, 8(s0)              # DECISION = vender todo
+00000098  00008793  mv   a5, ra
+0000009c  00b12023  sw   a1, 0(sp)
+000000a0  fb5ff06f  j    espera_ancla
+000000a4  00c42583  lw   a1, 12(s0)             # NUEVO (bloqueante): t1 + precio
+000000a8  00b67a63  bgeu a2, a1, piso           # p <= piso vigente
+000000ac  02e5f863  bgeu a1, a4, techo          # p >= techo vigente
+000000b0  00f42423  sw   a5, 8(s0)              # DECISION (no cambia)
+000000b4  00b12023  sw   a1, 0(sp)              # displays: precio en hexadecimal (bits 7:0)
+000000b8  fedff06f  j    espera
+000000bc  00a42423  sw   a0, 8(s0)              # DECISION = comprar, antes que nada
+000000c0  00050793  mv   a5, a0
+000000c4  00b12023  sw   a1, 0(sp)
+000000c8  fcb1eee3  bltu gp, a1, espera         # p > 100: recompra, no es el minimo
+000000cc  00100493  li   s1, 1                  # aparecio el 100
+000000d0  fcd70ae3  beq  a4, a3, espera         # el 255 todavia no aparece
+000000d4  07a30613  addi a2, t1, RECOMPRA       # ya aparecieron los dos
+000000d8  fcdff06f  j    espera
+000000dc  00142423  sw   ra, 8(s0)              # DECISION = vender, antes que nada
+000000e0  00008793  mv   a5, ra
+000000e4  00b12023  sw   a1, 0(sp)
+000000e8  fad5eee3  bltu a1, a3, espera         # p < 255: toma de ganancia
+000000ec  0e130713  addi a4, t1, TOMA_GANANCIA  # aparecio el 255
+000000f0  fa048ae3  beqz s1, espera             # el 100 todavia no aparece
+000000f4  07a30613  addi a2, t1, RECOMPRA       # ya aparecieron los dos
+000000f8  fadff06f  j    espera
