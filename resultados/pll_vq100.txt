@@ -1,0 +1,11 @@
+Variante con PLL (SB_PLL40_CORE, 25 MHz -> 39,844 MHz; DIVR=1, DIVF=50, DIVQ=4, FILTER_RANGE=1,
+valores de `icepll -i 25 -o 40`). Probada el 9-nov-2026 con nextpnr-ice40 0.11
+(--hx1k --package vq100):
+
+    ERROR: PLL 'u_pll' couldn't be placed anywhere, no suitable BEL found.
+    ERROR: Packing design failed.
+
+La iCE40HX1K tiene un PLL solo en el encapsulado TQ144. La Go Board usa el VQ100,
+que no lo trae: no hay donde ubicar el bloque. Sin PLL no hay forma de subir el
+reloj por encima de los 25 MHz del oscilador, asi que esta alternativa se descarto.
+El codigo se saco del RTL; este archivo queda como evidencia.

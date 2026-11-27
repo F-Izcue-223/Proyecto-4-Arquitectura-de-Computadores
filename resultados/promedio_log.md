@@ -1,0 +1,41 @@
+
+## Corrida 2026-11-24 00:48 (peor >= 0.9, P(>5%) <= 0.005)
+Version actual: {'toma': 225, 'recompra': 122, 'familia': 1, 'x': 29, 'y': 2, 'q': 15, 'salida': 0, 's': 3, 'donde': 0}. geo 2.0062, peor 0.953. Puntaje = neto cara a cara vs actual + el peor neto vs rivales.
+
+- 00:48 **mejor nueva**: sube_p0 x=29 y=2 q=16 salida=0 s=3 donde=0, toma 225, recompra 122 | promedio $21,122 geo 2.0067 peor 0.951 | neto vs actual +0.0932, vs 100/255 +0.1269, vs 220 +0.1282 | MC min -0.065
+- 00:48 **mejor nueva**: sube_p0 x=29 y=2 q=15 salida=0 s=3 donde=0, toma 221, recompra 122 | promedio $21,135 geo 2.0078 peor 0.953 | neto vs actual -0.0514, vs 100/255 +0.1252, vs 220 +0.1329 | MC min -0.180
+- 00:48 **mejor nueva**: sube_p0 x=29 y=3 q=15 salida=0 s=3 donde=0, toma 219, recompra 122 | promedio $21,138 geo 2.0082 peor 0.953 | neto vs actual -0.0507, vs 100/255 +0.121, vs 220 +0.1067 | MC min -0.150
+- 00:48 **mejor nueva**: sube_p0 x=31 y=2 q=15 salida=0 s=3 donde=0, toma 221, recompra 122 | promedio $21,139 geo 2.0078 peor 0.947 | neto vs actual -0.2415, vs 100/255 +0.123, vs 220 +0.1318 | MC min -0.520
+- 00:48 **mejor nueva**: sube_p0 x=30 y=2 q=21 salida=0 s=3 donde=0, toma 221, recompra 122 | promedio $21,141 geo 2.0101 peor 0.935 | neto vs actual +0.0242, vs 100/255 +0.1232, vs 220 +0.1315 | MC min -0.170
+- 00:48 **mejor nueva**: sube_p0 x=33 y=2 q=20 salida=0 s=4 donde=0, toma 225, recompra 128 | promedio $21,142 geo 2.0086 peor 0.927 | neto vs actual +0.0209, vs 100/255 +0.1305, vs 220 +0.1333 | MC min -0.055
+- 00:48 **mejor nueva**: sube_p0 x=32 y=2 q=23 salida=0 s=4 donde=0, toma 225, recompra 128 | promedio $21,144 geo 2.0097 peor 0.926 | neto vs actual +0.0566, vs 100/255 +0.1294, vs 220 +0.1315 | MC min -0.050
+- 00:48 **mejor nueva**: sube_p0 x=33 y=2 q=24 salida=0 s=4 donde=0, toma 218, recompra 128 | promedio $21,154 geo 2.0114 peor 0.917 | neto vs actual +0.0088, vs 100/255 +0.1282, vs 220 +0.108 | MC min -0.130
+- 00:48 **mejor nueva**: ninguna x=21 y=5 q=37 salida=2 s=21 donde=1, toma 177, recompra 142 | promedio $21,211 geo 2.0008 peor 0.97 | neto vs actual -0.0342, vs 100/255 +0.0505, vs 220 +0.028 | MC min -0.075
+- 00:48 **mejor nueva**: ninguna x=21 y=4 q=37 salida=1 s=21 donde=1, toma 177, recompra 140 | promedio $21,253 geo 2.0034 peor 0.97 | neto vs actual -0.0339, vs 100/255 +0.0511, vs 220 +0.0297 | MC min -0.075
+- 00:48 **mejor nueva**: ninguna x=21 y=5 q=43 salida=2 s=21 donde=1, toma 180, recompra 142 | promedio $21,265 geo 2.0063 peor 0.97 | neto vs actual -0.0267, vs 100/255 +0.0641, vs 220 +0.0342 | MC min -0.080
+- 00:48 **mejor nueva**: ninguna x=21 y=5 q=45 salida=2 s=21 donde=0, toma 180, recompra 136 | promedio $21,269 geo 2.0056 peor 0.97 | neto vs actual -0.0423, vs 100/255 +0.0489, vs 220 +0.0176 | MC min -0.085
+- 00:48 **mejor nueva**: ninguna x=21 y=5 q=43 salida=2 s=21 donde=0, toma 180, recompra 139 | promedio $21,291 geo 2.0077 peor 0.97 | neto vs actual -0.0317, vs 100/255 +0.0622, vs 220 +0.0302 | MC min -0.080
+- 00:49 **mejor nueva**: sube_p0 x=23 y=5 q=39 salida=1 s=18 donde=0, toma 180, recompra 139 | promedio $21,310 geo 2.0237 peor 0.909 | neto vs actual +0.037, vs 100/255 +0.0882, vs 220 +0.0637 | MC min -0.050
+- 00:49 **mejor nueva**: sube_p0 x=28 y=5 q=28 salida=1 s=20 donde=0, toma 180, recompra 139 | promedio $21,316 geo 2.0211 peor 0.9 | neto vs actual +0.0533, vs 100/255 +0.0926, vs 220 +0.0611 | MC min +0.000
+- 00:49 **mejor nueva**: sube_p0 x=28 y=5 q=28 salida=1 s=20 donde=0, toma 180, recompra 140 | promedio $21,329 geo 2.0221 peor 0.9 | neto vs actual +0.0542, vs 100/255 +0.0936, vs 220 +0.0646 | MC min +0.000
+- 00:49 **mejor nueva**: sube_p0 x=29 y=4 q=28 salida=2 s=18 donde=0, toma 180, recompra 140 | promedio $21,331 geo 2.0221 peor 0.911 | neto vs actual +0.0375, vs 100/255 +0.0981, vs 220 +0.0692 | MC min -0.055
+- 00:49 **mejor nueva**: sube_p0 x=34 y=4 q=28 salida=1 s=18 donde=0, toma 180, recompra 140 | promedio $21,333 geo 2.0197 peor 0.951 | neto vs actual +0.0514, vs 100/255 +0.0882, vs 220 +0.059 | MC min +0.015
+- 00:49 **mejor nueva**: sube_p0 x=37 y=4 q=28 salida=1 s=18 donde=0, toma 180, recompra 140 | promedio $21,337 geo 2.0195 peor 0.931 | neto vs actual +0.0282, vs 100/255 +0.0928, vs 220 +0.0621 | MC min -0.010
+- 00:49 **mejor nueva**: sube_p0 x=37 y=4 q=34 salida=2 s=18 donde=0, toma 180, recompra 140 | promedio $21,356 geo 2.0231 peor 0.93 | neto vs actual +0.0341, vs 100/255 +0.1049, vs 220 +0.0752 | MC min +0.010
+- 00:49 **mejor nueva**: sube_p0 x=37 y=4 q=39 salida=2 s=18 donde=0, toma 180, recompra 140 | promedio $21,363 geo 2.0242 peor 0.91 | neto vs actual +0.0397, vs 100/255 +0.1053, vs 220 +0.0782 | MC min +0.000
+- 00:49 **mejor nueva**: sube_p0 x=38 y=3 q=39 salida=2 s=18 donde=0, toma 180, recompra 140 | promedio $21,369 geo 2.0246 peor 0.912 | neto vs actual +0.0412, vs 100/255 +0.11, vs 220 +0.0822 | MC min -0.010
+- 00:49 **mejor nueva**: sube_p0 x=33 y=4 q=40 salida=2 s=14 donde=0, toma 180, recompra 140 | promedio $21,370 geo 2.0254 peor 0.922 | neto vs actual +0.0384, vs 100/255 +0.0998, vs 220 +0.0723 | MC min -0.015
+- 00:49 **mejor nueva**: sube_p0 x=33 y=4 q=46 salida=2 s=14 donde=0, toma 180, recompra 140 | promedio $21,371 geo 2.0255 peor 0.905 | neto vs actual +0.0359, vs 100/255 +0.0947, vs 220 +0.0701 | MC min -0.015
+- 00:50 **mejor nueva**: sube_p0 x=34 y=3 q=43 salida=2 s=14 donde=0, toma 180, recompra 140 | promedio $21,374 geo 2.0256 peor 0.904 | neto vs actual +0.0366, vs 100/255 +0.0941, vs 220 +0.0692 | MC min +0.005
+- 00:50 **mejor nueva**: sube_p0 x=34 y=2 q=45 salida=2 s=14 donde=0, toma 179, recompra 140 | promedio $21,375 geo 2.0256 peor 0.904 | neto vs actual +0.0352, vs 100/255 +0.0937, vs 220 +0.0692 | MC min +0.005
+- 00:50 **mejor nueva**: sube_p0 x=34 y=2 q=42 salida=2 s=14 donde=0, toma 179, recompra 140 | promedio $21,376 geo 2.0256 peor 0.904 | neto vs actual +0.0386, vs 100/255 +0.0952, vs 220 +0.0681 | MC min +0.005
+- 00:51 **mejor nueva**: sube_p0 x=34 y=2 q=43 salida=2 s=14 donde=0, toma 179, recompra 140 | promedio $21,376 geo 2.0256 peor 0.904 | neto vs actual +0.0372, vs 100/255 +0.0945, vs 220 +0.0688 | MC min +0.005
+- 00:51 **mejor nueva**: sube_p0 x=35 y=4 q=44 salida=2 s=16 donde=0, toma 179, recompra 140 | promedio $21,376 geo 2.0256 peor 0.902 | neto vs actual +0.0381, vs 100/255 +0.0989, vs 220 +0.0721 | MC min +0.005
+- 00:51 **mejor nueva**: sube_p0 x=35 y=3 q=43 salida=2 s=16 donde=0, toma 179, recompra 140 | promedio $21,376 geo 2.0256 peor 0.902 | neto vs actual +0.0403, vs 100/255 +0.0992, vs 220 +0.0725 | MC min +0.005
+- 00:58 **mejor nueva**: ruptura x=40 y=6 q=39 salida=0 s=9 donde=0, toma 180, recompra 140 | promedio $21,399 geo 2.0256 peor 0.913 | neto vs actual +0.0432, vs 100/255 +0.1188, vs 220 +0.0906 | MC min -0.065
+- 00:58 **mejor nueva**: ruptura x=35 y=6 q=39 salida=0 s=9 donde=0, toma 180, recompra 140 | promedio $21,400 geo 2.0267 peor 0.913 | neto vs actual +0.045, vs 100/255 +0.119, vs 220 +0.0919 | MC min -0.070
+- 00:58 **mejor nueva**: ruptura x=33 y=6 q=39 salida=0 s=12 donde=0, toma 180, recompra 140 | promedio $21,401 geo 2.0271 peor 0.913 | neto vs actual +0.0445, vs 100/255 +0.1196, vs 220 +0.0921 | MC min -0.070
+- 00:58 **mejor nueva**: ruptura x=38 y=6 q=39 salida=0 s=12 donde=0, toma 179, recompra 140 | promedio $21,401 geo 2.0261 peor 0.913 | neto vs actual +0.0469, vs 100/255 +0.1183, vs 220 +0.0893 | MC min -0.065
+- 00:58 **mejor nueva**: ruptura x=35 y=6 q=40 salida=0 s=11 donde=0, toma 180, recompra 140 | promedio $21,403 geo 2.027 peor 0.905 | neto vs actual +0.045, vs 100/255 +0.1194, vs 220 +0.0923 | MC min -0.070
+- 00:59 **mejor nueva**: ruptura x=35 y=6 q=40 salida=0 s=15 donde=1, toma 179, recompra 140 | promedio $21,405 geo 2.0271 peor 0.905 | neto vs actual +0.0463, vs 100/255 +0.1186, vs 220 +0.0901 | MC min -0.070
+- 00:59 **mejor nueva**: ruptura x=33 y=6 q=40 salida=0 s=15 donde=1, toma 179, recompra 140 | promedio $21,406 geo 2.0275 peor 0.905 | neto vs actual +0.0454, vs 100/255 +0.1188, vs 220 +0.0906 | MC min -0.070

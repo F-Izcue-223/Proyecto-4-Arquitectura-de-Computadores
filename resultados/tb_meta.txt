@@ -1,0 +1,10 @@
+# practica_meta.csv completa (20 000 ticks), version D, simulada en el RTL con `make tb-meta`
+# (testbench del curso con esa serie y periodo de 100 us). La decision del RTL coincide con ref/trader.py
+# en 19 998 de 20 000 ticks; los dos primeros llegan durante el reset de encendido y no cambian el resultado.
+Patrimonio final:          23215
+Ordenes ejecutadas:        8
+Perdida maxima:            3296
+No operar:                 10000
+Comprar y mantener:        9695
+Peor caso precio->decision: 12 ciclos (disponibles: 2262)
+Testbenchs aprobados: 4/4

@@ -1,0 +1,22 @@
+11789 periodos de 22 empresas (2022-2024). Grupo A: ['AMAT', 'AVGO', 'GOOGL', 'INTC', 'KLAC', 'META', 'MU', 'NVDA', 'ORCL', 'PLTR', 'TSM']
+1296 combinaciones en 141 s
+
+neto = el peor contra los dos rivales (gana% - pierde%)
+D                              todo  +8.7% | 2022-23  +7.6% 2024 +11.3% | grupo A +10.0% grupo B  +7.3% | prom $21,118 peor $8,645 pierde 1.24% | practicas $20,247 gana al rival 8/8
+F                              todo +18.3% | 2022-23 +18.8% 2024 +17.0% | grupo A +19.2% grupo B +17.3% | prom $20,546 peor $9,207 pierde 0.19% | practicas $23,031 gana al rival 8/8
+elegida con 2022-23 (256, 240, 0, 0, 0, 225, 130) todo +35.5% | 2022-23 +36.2% 2024 +33.5% | grupo A +35.5% grupo B +35.4% | prom $21,121 peor $8,876 pierde 0.24% | practicas $19,841 gana al rival 7/8
+elegida con grupo A (256, 240, 0, 0, 0, 225, 130) todo +35.5% | 2022-23 +36.2% 2024 +33.5% | grupo A +35.5% grupo B +35.4% | prom $21,121 peor $8,876 pierde 0.24% | practicas $19,841 gana al rival 7/8
+elegida con grupo B (256, 240, 0, 0, 0, 225, 122) todo +35.4% | 2022-23 +36.2% 2024 +33.5% | grupo A +35.4% grupo B +35.5% | prom $21,059 peor $8,876 pierde 0.20% | practicas $20,256 gana al rival 8/8
+elegida con todo (256, 240, 0, 0, 0, 225, 130) todo +35.5% | 2022-23 +36.2% 2024 +33.5% | grupo A +35.5% grupo B +35.4% | prom $21,121 peor $8,876 pierde 0.24% | practicas $19,841 gana al rival 7/8
+
+Top 10 con todo (limites de riesgo cumplidos):
+(256, 240, 0, 0, 0, 225, 130)  todo +35.5% | 2022-23 +36.2% 2024 +33.5% | grupo A +35.5% grupo B +35.4% | prom $21,121 peor $8,876 pierde 0.24% | practicas $19,841 gana al rival 7/8
+(256, 240, 0, 0, 0, 225, 122)  todo +35.4% | 2022-23 +36.2% 2024 +33.5% | grupo A +35.4% grupo B +35.5% | prom $21,059 peor $8,876 pierde 0.20% | practicas $20,256 gana al rival 8/8
+(256, 230, 0, 0, 0, 225, 122)  todo +34.9% | 2022-23 +35.4% 2024 +33.7% | grupo A +35.4% grupo B +34.5% | prom $21,005 peor $8,547 pierde 0.25% | practicas $21,006 gana al rival 8/8
+(256, 240, 0, 0, 0, 220, 130)  todo +34.8% | 2022-23 +35.6% 2024 +32.7% | grupo A +35.0% grupo B +34.6% | prom $21,130 peor $8,876 pierde 0.24% | practicas $19,935 gana al rival 7/8
+(256, 240, 0, 0, 0, 220, 122)  todo +34.8% | 2022-23 +35.6% 2024 +32.7% | grupo A +34.8% grupo B +34.7% | prom $21,054 peor $8,876 pierde 0.20% | practicas $20,362 gana al rival 8/8
+(256, 240, 0, 0, 0, 230, 122)  todo +34.6% | 2022-23 +35.3% 2024 +32.8% | grupo A +34.5% grupo B +34.7% | prom $21,010 peor $8,876 pierde 0.20% | practicas $17,670 gana al rival 8/8
+(256, 240, 0, 0, 0, 230, 130)  todo +34.6% | 2022-23 +35.3% 2024 +32.8% | grupo A +34.6% grupo B +34.6% | prom $21,054 peor $8,876 pierde 0.24% | practicas $17,455 gana al rival 7/8
+(256, 240, 0, 0, 0, 225, 115)  todo +34.5% | 2022-23 +35.6% 2024 +31.6% | grupo A +34.4% grupo B +34.6% | prom $20,967 peor $8,876 pierde 0.17% | practicas $20,630 gana al rival 8/8
+(256, 230, 0, 0, 0, 220, 122)  todo +34.4% | 2022-23 +34.9% 2024 +33.2% | grupo A +34.8% grupo B +34.0% | prom $20,999 peor $8,547 pierde 0.25% | practicas $21,111 gana al rival 8/8
+(256, 230, 0, 0, 0, 225, 115)  todo +34.1% | 2022-23 +34.8% 2024 +32.2% | grupo A +34.6% grupo B +33.5% | prom $20,912 peor $8,620 pierde 0.25% | practicas $21,385 gana al rival 8/8

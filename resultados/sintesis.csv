@@ -1,0 +1,6 @@
+variante,MHz_objetivo,LC,LC_total,LC_pct,LUT4,CARRY,FF,BRAM,Fmax_min,Fmax_max,cierra_timing
+base_original,25.0,1191,1280,93.0,1013,191,327,12,42.54,45.5,True
+sw,25.0,985,1280,77.0,897,191,210,12,45.68,46.61,True
+shift,25.0,1253,1280,97.9,1165,191,210,12,41.27,43.29,True
+mul8,25.0,1185,1280,92.6,1058,222,282,12,46.69,47.38,True
+mul8shift,25.0,1444,1280,112.8,1316,222,282,12,,,no cabe
