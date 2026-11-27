@@ -1,0 +1,36 @@
+# Virtual Environments & Editor Files
+.venv/
+venv/
+.DS_Store
+
+# Python & Test Artifacts
+__pycache__/
+*.py[cod]
+*$py.class
+.pytest_cache/
+
+# FPGA Synthesis & Bitstream Artifacts (Yosys / nextpnr / icepack)
+*.json
+*.asc
+*.bin
+*.log
+module_stats/
+
+# Simulation Artifacts (Iverilog / GTKWave / Cocotb)
+sim/sim
+*.vcd
+*.csv
+# Proyecto 4: las series de data/ y los resultados si van al repo
+!data/**
+!resultados/*.csv
+!resultados/extremos/*.csv
+!tb/*.csv
+build/
+!docs/*.pdf
+
+# datos descargados de Yahoo: no se redistribuyen
+data/yahoo/
+
+# barras de 1 minuto (Alpaca via Hugging Face): no se redistribuyen
+data/minuto/
+!versiones_guardadas/**
