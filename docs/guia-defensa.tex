@@ -1,0 +1,403 @@
+\documentclass[11pt,letterpaper]{article}
+\usepackage{iftex}
+\ifXeTeX
+  \usepackage{fontspec}   % Tectonic / XeLaTeX
+\else
+  \usepackage[utf8]{inputenc}   % pdfLaTeX (Overleaf)
+  \usepackage[T1]{fontenc}
+\fi
+\usepackage[spanish,es-noshorthands,es-tabla]{babel}
+\usepackage{lmodern}
+\usepackage[margin=2.2cm]{geometry}
+\usepackage{amsmath}
+\usepackage{booktabs}
+\usepackage{xcolor}
+\usepackage{enumitem}
+\usepackage{tcolorbox}
+\usepackage{listings}
+\usepackage[hidelinks]{hyperref}
+\input{../informe/tablas/numeros}
+
+\newtcolorbox{checkpoint}{colback=green!5,colframe=green!45!black,title=Checkpoint,fonttitle=\bfseries\small}
+\lstset{basicstyle=\ttfamily\footnotesize,columns=fullflexible,frame=single,framerule=0.3pt,
+  rulecolor=\color{gray!50}}
+\setlist{itemsep=2pt}
+\newcounter{preg}
+\newcommand{\preg}[1]{\stepcounter{preg}\par\medskip\noindent\textbf{P\thepreg. #1}\par\noindent}
+
+\title{\textbf{Pochoco Trader: guía para la defensa}\\[2pt]\large Proyecto 4, Arquitectura de Computadores}
+\author{Para Martín, Josefa y Felipe}
+\date{17 de noviembre de 2026 (algoritmo final)}
+
+\begin{document}
+\maketitle
+
+\noindent Esta guía tiene tres partes. La \textbf{A} arma el proyecto desde cero, pieza por pieza, con
+un checkpoint al final de cada paso: si no puedes responder el checkpoint, vuelve a leer el paso.
+La \textbf{B} son las preguntas que probablemente hagan en la defensa, con su respuesta. La
+\textbf{C} son los números que conviene saberse. Todo lo que se cita está en el repositorio.
+
+\tableofcontents
+
+%=============================================================================
+\section*{Parte A. El proyecto desde cero}
+\addcontentsline{toc}{section}{Parte A. El proyecto desde cero}
+
+\subsection*{Paso 1. El juego}
+\addcontentsline{toc}{subsection}{Paso 1. El juego}
+\begin{enumerate}
+\item La maestra baja CS\_n, manda el precio $p_n$ (1 a 255) y \emph{en la misma transacción} lee
+  por MISO el byte que estaba en DECISION.
+\item Ese byte lo escribimos después de recibir $p_{n-1}$. La maestra lo ejecuta al precio $p_n$.
+\item Byte: bits 7:6 acción (\texttt{01} comprar, \texttt{10} vender), bits 5:0 cantidad $q \le 63$.
+\item Si no alcanzamos a escribir antes del siguiente tick, la maestra \textbf{repite} el byte que estaba.
+\item La maestra \textbf{recorta} la orden: compra lo que alcance con la caja, vende lo que haya. Una
+  orden que queda en 0 no se ejecuta y no paga los \$5 de comisión (tarea \texttt{ejecutar} del testbench).
+\item Ronda 3: $T = 0{,}1$\,ms = 2500 ciclos. Menos los 9,5\,$\mu$s del SPI quedan \Presupuesto{} ciclos.
+\end{enumerate}
+\begin{checkpoint}
+¿Qué pasa si mandamos ``comprar 63'' y la caja alcanza para 13 acciones? (Compra 13 y cobra una comisión.
+Si no alcanza para ninguna, no pasa nada y no cobra.)
+\end{checkpoint}
+
+\subsection*{Paso 2. Cómo se arman las series de la competencia}
+\addcontentsline{toc}{subsection}{Paso 2. Cómo se arman las series de la competencia}
+\begin{enumerate}
+\item El 17-nov llegó \texttt{tb/practica\_meta.csv}: 20.000 minutos de Meta (feb--may 2022),
+  normalizados entre 100 y 255. En la competencia: períodos ocultos de Meta, Apple, Netflix, AMD o Tesla
+  (2022--2024), normalizados igual.
+\item Se bajaron los precios reales de 1 minuto de las 5 empresas (Alpaca, vía Hugging Face).
+\item La ventana de Meta que parte el 23-feb-2022 a las 15:20 (horario regular), llevada a $[100,255]$
+  y redondeada, da la práctica \textbf{exacta}: 20.000 de 20.000 precios iguales.
+\item Fórmula: $p = \operatorname{round}(100 + 155\,(x - \min x)/(\max x - \min x))$, con el mínimo y
+  el máximo de \textbf{toda} la ventana.
+\item Así se pueden armar todas las series posibles: \NVentanas{} ventanas para evaluar
+  (\texttt{ref/minuto.py}, \texttt{ref/competencia.py}).
+\end{enumerate}
+\begin{checkpoint}
+¿Por qué el mínimo y el máximo de toda la ventana le dan información al agente? (Porque incluyen el
+futuro: si hoy el precio vale 100, ya se sabe que nunca va a bajar de ahí.)
+\end{checkpoint}
+
+\subsection*{Paso 3. El algoritmo final (``extremos'')}
+\addcontentsline{toc}{subsection}{Paso 3. El algoritmo final}
+\begin{enumerate}
+\item Dos hechos de toda ventana: el precio queda entre 100 y 255, y el 100 y el 255 aparecen sí o sí.
+\item \textbf{Regla 1}: si $p \le$ piso, dentro (\texttt{0x7F}, comprar 63).
+\item \textbf{Regla 2}: si $p \ge$ techo, fuera (\texttt{0xBF}, vender 63).
+\item \textbf{Regla 3}: entre medio, no cambia. Parte fuera.
+\item El techo vale 255. Cuando aparece el 255, el techo baja a 225 y se queda ahí.
+\item El piso vale 100. Cuando ya aparecieron el 100 y el 255, el piso sube a 120 y se queda ahí.
+\item \textbf{Ancla} (solo antes del primer extremo): si $p \ge p_0 + 30$, compra 15 acciones una vez y
+  después manda ``mantener''; si $p \le p_0$, vende todo. Toma las subidas del comienzo.
+\end{enumerate}
+Por qué funciona:
+\begin{itemize}
+\item Si ve 100 y el 255 todavía no apareció, el 255 viene después: compra en el piso y vende en el
+  techo, $\times 2{,}55$ menos comisiones.
+\item Si el 255 ya pasó, comprar en 100 no puede perder (el precio no baja de 100). Pero ya no hay
+  garantía de volver a 255: por eso toma la ganancia en 225.
+\item Cuando ya pasaron los dos, no hay garantía de nada; pero comprar en 120 o menos arriesga poco
+  (el precio no baja de 100) y la subida queda abierta.
+\end{itemize}
+\begin{checkpoint}
+Precios: 180, 255, 140, 100, 160, 228, 130, 118. ¿Qué hace? (Fuera; ve 255: el techo baja a 225; fuera;
+ve 100: dentro, y como ya vio los dos, el piso sube a 120; sigue dentro en 160; en 228 $\ge 225$ vende;
+fuera en 130; en 118 $\le 120$ compra.)
+\end{checkpoint}
+
+\subsection*{Paso 4. Ganancia y riesgo}
+\addcontentsline{toc}{subsection}{Paso 4. Ganancia y riesgo}
+\begin{enumerate}
+\item Las rondas son de 20.000 ticks (confirmado). En \NVentanas{} ventanas: media geométrica \ExtGeo{} (CyM \CymGeo), mediana
+  \ExtMediana, 5\,\% peor \ExtPcinco, peor ventana \ExtPeor.
+\item Pierde plata en el \ExtPierde\,\% de las ventanas. Comprar y mantener: \CymPierde\,\%. El algoritmo
+  anterior: \TendPierde\,\%.
+\item Parejo: por año 2022 \ExtGeoDosmilveintidos, 2023 \ExtGeoDosmilveintitres, 2024
+  \ExtGeoDosmilveinticuatro; mejora en las 5 empresas.
+\item Ronda de 2000 ticks: casi siempre el 100 no aparece y no opera. Geo \ExtCortaGeo{} (CyM
+  \CymCortaGeo), nunca pierde.
+\item Práctica completa: \$\MetaW{} (CyM \$\MetaCym, algoritmo anterior \$\MetaWTend).
+\item 100 y 255 salen de la especificación. Techo y recompra se ajustaron (+1,1\,\% y +1,4\,\%); el techo
+  quedó en 225 y no en 220 porque le gana cara a cara a reglas parecidas, y cada uno
+  mejora a las 5 empresas y a los dos períodos por separado.
+\end{enumerate}
+\begin{checkpoint}
+¿Cuál es el riesgo que queda? (Que el 255 pase primero, compre en 100 y la ventana termine cerca de 100:
+peor caso \ExtPeor. Y que la competencia use otra normalización o rondas cortas: ahí no opera y queda en
+\$10.000.)
+\end{checkpoint}
+
+\subsection*{Paso 5. trade.s, vuelta por vuelta}
+\addcontentsline{toc}{subsection}{Paso 5. trade.s, vuelta por vuelta}
+\begin{enumerate}
+\item Arranque: \texttt{t1} = \texttt{0x8000\_0000}; piso (\texttt{a2}) y mínimo (\texttt{gp}) = \texttt{t1}+100;
+  techo (\texttt{a4}) y máximo (\texttt{a3}) = \texttt{t1}+255; \texttt{a0} = \texttt{0x7F}, \texttt{ra} =
+  \texttt{0xBF}; \texttt{a5} = \texttt{0xBF} (fuera).
+\item \texttt{espera}: \texttt{lw a1, 12(s0)} lee el registro NUEVO: bit 31 = llegó precio, bits 7:0 = precio.
+  La lectura es \textbf{bloqueante}: si no hay precio nuevo, el \texttt{lw} no termina (la unidad de carga
+  espera), y termina el ciclo siguiente a que llega.
+\item Como \texttt{a1} trae el bit 31 en 1, se compara sin signo contra piso y techo, que también lo traen.
+\item Lo común: no toca ninguno, escribe DECISION (la misma) y el display, y vuelve.
+\item \texttt{piso}: escribe COMPRAR \emph{primero}; después, si $p \le 100$, marca \texttt{s1} y, si ya vio el
+  255, sube el piso a 120.
+\item \texttt{techo}: escribe VENDER \emph{primero}; después, si $p \ge 255$, baja el techo a 225 y, si ya vio el
+  100, sube el piso a 120.
+\end{enumerate}
+\begin{checkpoint}
+¿Por qué escribir DECISION antes de actualizar el estado? (La maestra toma DECISION al bajar CS. Con ticks
+pegados quedan ~25 ciclos; actualizar antes hacía llegar tarde justo cuando la decisión cambia: 34 ciclos.
+Ahora el peor caso es 9.)
+\end{checkpoint}
+
+\subsection*{Paso 6. Cómo se comprobó}
+\addcontentsline{toc}{subsection}{Paso 6. Cómo se comprobó}
+\begin{enumerate}
+\item \texttt{ref/trader.py} (clase \texttt{Extremos}): el algoritmo en Python. Lee las \texttt{.equ} de
+  \texttt{trade.s}.
+\item \texttt{ref/espino\_iss.py}: ejecuta el \texttt{.hex} instrucción por instrucción contando ciclos.
+  En \ExtNTicks{} ticks, misma decisión.
+\item \texttt{sim/tb\_trade.v}: el RTL contra una maestra SPI emulada, los 20.000 ticks de la práctica.
+  Mismos bytes y \textbf{mismos ciclos por tick que el simulador}.
+\item \texttt{make tb}: testbench del curso, \TbAprobados. \texttt{make tb-meta}: el mismo con la
+  práctica nueva completa, \TbMetaAprobados, \$\TbMetaW.
+\item En la placa: maestra embebida con 1000 precios (tramo con el 255 y después tramo con el 100). 4 LEDs
+  fijos y \texttt{A1} en los displays = todo coincide.
+\end{enumerate}
+
+\subsection*{Paso 7. Dónde se van los ciclos y Amdahl (algoritmo anterior)}
+\addcontentsline{toc}{subsection}{Paso 7. Dónde se van los ciclos y Amdahl}
+El estudio de co-diseño se hizo con el algoritmo anterior (\texttt{sw/trade\_tendencia.s}: medias
+móviles de 64 y 512, 3 a 5 multiplicaciones por tick). Se reproduce con \texttt{ALGO=tendencia}.
+\begin{enumerate}
+\item Perfil solo software: multiplicación \FracMul\,\%, duplicaciones \FracDup\,\%.
+\item Amdahl: $S = 1/((1-f) + f/s)$. Máximo si la multiplicación costara 0: \AmdahlMaxMul.
+\item Predicción antes de construir \texttt{mul8}: cada llamada (unos \CiclosMulSw{} ciclos) pasa a 10.
+  $S = \AmdahlPredMul$. Medido: \AmdahlMedMul. Sale mejor porque los umbrales son números chicos y el
+  multiplicador termina en 3 a 5 ciclos.
+\item Shifter: $f$ = \AmdahlFShift\,\%, $S$ = \AmdahlMedShift. Poco, porque las duplicaciones pesan poco.
+\end{enumerate}
+
+\subsection*{Paso 8. El hardware}
+\addcontentsline{toc}{subsection}{Paso 8. El hardware}
+\begin{enumerate}
+\item \textbf{\texttt{no\_rw\_check}} (\texttt{pochoco\_ram.v}): Yosys agregaba 117 flip-flops y 93 LUTs
+  para emular leer y escribir la misma dirección en el mismo ciclo. Eso nunca pasa aquí. El SoC bajó de
+  \LCOriginal{} a \LCSw{} celdas. Sin esto no cabía ningún acelerador.
+\item \textbf{Shifter} (\texttt{espino\_alu.v}, \texttt{ESPINO\_SHIFTER}): un barrel shifter a la derecha
+  de 33 bits; SLL invierte los bits antes y después. +\CostoShift{} celdas, $f_\text{máx}$ baja a
+  \FmaxShift\,MHz, speedup \SpeedupShift.
+\item \textbf{mul8} (\texttt{espino\_mul8.v}): \texttt{rd = rs1 * rs2[7:0]}, opcode custom-0
+  \texttt{0x0B}. Secuencial, un bit por ciclo, un solo sumador. Detiene el pipeline como un load.
+  +\CostoMul{} celdas, $f_\text{máx}$ igual (\FmaxMul\,MHz), speedup \SpeedupMul. Solo con
+  \texttt{-DESPINO\_MUL8}; sin ese define el core es el original.
+\item \textbf{Las dos juntas}: \LCMulShift{} celdas, no caben en las 1280.
+\item \textbf{PLL}: el VQ100 de la Go Board no tiene (solo el TQ144). nextpnr: ``no suitable BEL''.
+\end{enumerate}
+
+\textbf{mul8 ciclo a ciclo} (multiplicar $a$ por $b = 5 = 101_2$):
+\begin{center}\small
+\begin{tabular}{llll}
+\toprule
+Ciclo & Qué pasa & acc & stall \\
+\midrule
+1 & la instrucción llega; espera el banco de registros (BRAM) & -- & sí \\
+2 & primer paso: $b_0 = 1$, acc $= a$ & $a$ & sí \\
+3 & $b_1 = 0$, no suma; $a \to 2a$ & $a$ & sí \\
+4 & $b_2 = 1$, acc $= a + 4a$; no quedan bits en 1: \texttt{done} & $5a$ & sí \\
+5 & \texttt{busy} baja: la etapa ID escribe acc en \texttt{rd} & $5a$ & no \\
+\bottomrule
+\end{tabular}
+\end{center}
+\begin{checkpoint}
+¿Por qué secuencial y no combinacional? (Un $32\times 8$ combinacional son 7 sumadores de 32 bits, unas
+250 celdas, y la HX1K no tiene DSP. El secuencial usa 1 sumador.)
+\end{checkpoint}
+
+\subsection*{Paso 9. Roofline, Ops/s y la variante final}
+\addcontentsline{toc}{subsection}{Paso 9. Roofline, Ops/s y la variante final}
+\begin{enumerate}
+\item Operación útil = suma, resta, comparación o multiplicación sobre datos del mercado (contadas en
+  \texttt{trader.py}): \OpsTick{} por tick, igual en todas las variantes.
+\item Techos de la clase: cómputo 12,5\,MOPS (1 op cada 2 ciclos); memoria 100\,MB/s (4 B por ciclo).
+  Se cruzan en 0,125 op/byte.
+\item El kernel mueve \BytesTick{} bytes por tick: \IntensidadOp{} op/byte. A la derecha del cruce:
+  \textbf{limitado por cómputo}.
+\item Solo software: \MIPSSw{} MIPS pero \MopsSw{} MOPS útiles. Con \texttt{mul8}: \MopsMul.
+\item Algoritmo final: \ExtOpsTick{} ops por tick, \ExtBytesTick{} bytes: 0,25 op/byte, también a la
+  derecha del cruce. \ExtMops{} MOPS útiles: casi todas sus instrucciones son de entrada y salida.
+\item \textbf{Variante final}: el Espino sin \texttt{mul8} ni shifts, con la lectura bloqueante (985 celdas).
+  Es lo que se compila sin opciones.
+\item El algoritmo nuevo hizo el tick \ExtSpeedupMul{} veces más corto que el anterior con \texttt{mul8}:
+  cambiar el algoritmo aceleró más que el hardware.
+\end{enumerate}
+
+%=============================================================================
+\section*{Parte B. Preguntas probables}
+\addcontentsline{toc}{section}{Parte B. Preguntas probables}
+
+\subsection*{Algoritmo}
+\preg{¿Qué predice su algoritmo?}
+Nada del mercado: usa cómo se arma la serie. Como el mínimo de la ventana vale 100 y el máximo 255, un
+precio de 100 es el piso y un 255 es el techo. Si se ve el piso antes que el techo, el techo viene
+después.
+
+\preg{¿No es hacer trampa?}
+No. Usa solo los precios que llegan por SPI y la especificación pública de la serie (normalizada entre
+100 y 255). Cualquier grupo podía leerla igual.
+
+\preg{¿Por qué no simplemente comprar y mantener?}
+Comprar y mantener pierde en el \CymPierde\,\% de las ventanas y su 5\,\% peor deja \CymPcinco{} de la
+plata. El agente pierde en el \ExtPierde\,\% y su peor ventana deja \ExtPeor.
+
+\preg{¿Cómo eligieron los parámetros?}
+100 y 255 vienen de la especificación. 225 y 120 se eligieron con datos, en \NVentanas{} ventanas, y se
+aceptaron solo porque mejoraban a las 5 empresas y a los dos períodos por separado. Para el 120, todo
+el rango 115--140 da casi lo mismo: se tomó el medio, no el mejor punto.
+
+\preg{¿Por qué el ancla compra solo 15 acciones?}
+Porque antes del primer extremo no hay garantía. Comprando todo, una serie que sube y baja sin tocar
+los extremos le hacía perder 20\,\% por vuelta (peor ronda $-21$\,\%). Con 15 acciones la peor ronda
+queda en $-5{,}5$\,\% y sigue ganando cara a cara: +8,4\,\% neto contra la regla sin ancla y +12\,\%
+contra los rivales.
+
+\preg{¿Por qué 225 y no 220, si 220 da mejor promedio?}
+Porque se compite contra grupos con reglas parecidas: entre reglas casi iguales casi todas las rondas
+empatan y decide el cara a cara. 225 promedia casi igual (1,997 contra 1,998) y contra un rival con 220
+gana en más rondas de las que pierde (+6,2\,\% neto); contra 100/255 puro rinde igual. Se repite en los
+ocho escenarios del Montecarlo.
+
+\preg{¿Cómo deciden $q$?}
+Siempre 63. La maestra recorta la orden y no cobra si queda en 0. Cerca de 100 alcanza para unas 99
+acciones: entra en dos ticks (63 y 36).
+
+\preg{¿Qué pasa si la ronda es de 2000 ticks?}
+Casi nunca aparece el 100, así que no opera y termina con \$10.000. Nunca pierde, y en media geométrica
+le gana a comprar y mantener (\ExtCortaGeo{} contra \CymCortaGeo).
+
+\preg{¿Qué pasa si no alcanzan a responder?}
+La maestra repite la orden anterior, que es la misma que se quería mandar.
+
+\preg{¿Qué pasó con el algoritmo de medias móviles?}
+Quedó en \texttt{sw/trade\_tendencia.s}. En las ventanas de la competencia empata con comprar y mantener
+(\TendGeo) y pierde en el \TendPierde\,\% de ellas. Con él se hizo el estudio de co-diseño.
+
+\subsection*{Assembly}
+\preg{¿Cómo comparan $p \le 100$ sin \texttt{ble}?}
+\texttt{bge a2, a1, piso} con \texttt{a2} = 100: es $100 \ge p$.
+
+\preg{¿Usan multiplicación, shifts o división?}
+No. Solo comparaciones. Por eso no necesita \texttt{mul8} ni shifts.
+
+\preg{¿Por qué CPI de 2,4 y no 1?}
+El banco de registros es una BRAM con lectura sincrónica: cada instrucción espera un ciclo a sus
+operandos. Los loads esperan otro ciclo y los saltos tomados descartan la instrucción ya pedida.
+
+\preg{Cambie una constante y regenere el programa.}
+Editar la \texttt{.equ} en \texttt{sw/trade.s} (por ejemplo \texttt{TOMA\_GANANCIA}) y:
+\begin{lstlisting}
+make hex          (sw/trade.hex)
+make tb           (el testbench del curso)
+make bin && make prog-d2xx
+\end{lstlisting}
+\texttt{trader.py} lee la misma constante, así que \texttt{python ref/verificar.py --rapido} sigue sirviendo.
+
+\subsection*{Hardware}
+\preg{Si el programa final no multiplica, ¿para qué sirvió \texttt{mul8}?}
+Para el algoritmo anterior, que sí multiplicaba: bajó su tick de \CiclosPromSw{} a \CiclosPromMul{}
+ciclos. Con el final, \texttt{mul8} solo gastaría área, así que el diseño de competencia es el Espino
+original. Queda en el repositorio con \texttt{-DESPINO\_MUL8}.
+
+\preg{¿Por qué no un multiplicador más rápido (radix 4)?}
+Con el algoritmo final hay cero multiplicaciones. Con el anterior era cerca del 13\,\% de los ciclos:
+Amdahl da como mucho 1,07.
+
+\preg{¿Por qué no varios núcleos?}
+No caben: el SoC usa \LCSw{} de 1280 celdas y quedan \LCLibres. Recortando el Espino a las
+instrucciones que usamos quedaría en unas 400 LUT, pero cada núcleo necesita 4 BRAM para sus registros:
+4 núcleos son unas 1600 LUT y 16 BRAM más las 8 de la RAM. Y no hay qué repartir: un precio por tick y
+comparaciones que dependen una de otra. Fracción paralela 0, speedup 1, misma plata.
+
+\preg{¿Y con una GPU (CUDA)?}
+CUDA corre en GPUs NVIDIA, no en la FPGA. Serviría para buscar parámetros fuera de línea, pero 220
+millones de ticks se simulan en 4 segundos en la CPU. Lo que mejoró la ganancia fue entender la
+normalización.
+
+\preg{¿Qué hicieron para la prueba de velocidad?}
+Tres cosas: escribir DECISION antes de actualizar el estado; un registro NUEVO en el esclavo SPI con
+el aviso y el precio en una lectura; y una lectura bloqueante en la unidad de carga del Espino (el
+\texttt{lw} de NUEVO no termina hasta que llega un precio). Peor caso precio $\to$ DECISION: de 34 a 9
+ciclos (0,36\,$\mu$s), con la misma plata.
+
+\preg{¿Por qué no 4 núcleos o 4 hilos, como otro grupo?}
+Llega un precio por tick y la decisión son comparaciones encadenadas: no hay nada que repartir. Un
+núcleo con 4 hilos intercalados ejecuta cada hilo a un cuarto de la velocidad, así que la respuesta a
+un precio sería más lenta. Sirve para hacer más trabajo independiente, no para responder antes.
+
+\preg{¿Dónde está el cuello de botella ahora?}
+En el protocolo, igual para todos: la decisión del precio $n$ se ejecuta al precio $n+1$ y $q \le 63$
+obliga a dos órdenes. El cómputo usa el \ExtPctRtres\,\% de la ronda 3.
+
+\subsection*{RTL}
+\preg{¿Cómo se integra \texttt{mul8} al pipeline?}
+El decoder reconoce el opcode \texttt{0x0B} y marca \texttt{is\_mul} y \texttt{WD\_MUL}. En la etapa ID,
+con los operandos listos, arranca \texttt{espino\_mul8}. Su \texttt{busy} se suma a \texttt{lsu\_busy},
+así que el controlador detiene el pipeline igual que en un load. Cuando termina, el resultado se
+escribe en \texttt{rd}.
+
+\preg{¿Qué es custom-0?}
+Un opcode (\texttt{0001011}) que la especificación de RISC-V reserva para extensiones propias.
+
+\preg{¿Sigue siendo Espino?}
+Sí. El de la competencia tiene las mismas instrucciones del Espino; solo su unidad de carga acepta una
+espera del esclavo SPI. La variante con \texttt{mul8} agrega una instrucción; el decoder, las etapas y
+el banco de registros son los originales.
+
+\preg{¿Por qué el shifter baja la frecuencia y \texttt{mul8} no?}
+El shifter es combinacional y queda en serie con la ALU. \texttt{mul8} hace un paso por ciclo con un
+sumador de 32 bits, tan largo como el de la ALU que ya estaba.
+
+\preg{¿Qué hace \texttt{no\_rw\_check} y por qué es seguro?}
+Le dice a Yosys que no emule leer y escribir la misma dirección en el mismo ciclo. El programa no se
+escribe a sí mismo y el core no lee y escribe un dato en el mismo ciclo.
+
+\preg{¿Por qué no subieron la frecuencia con el PLL?}
+La HX1K en encapsulado VQ100 no tiene PLL. Está en \texttt{resultados/pll\_vq100.txt}.
+
+\subsection*{Métricas}
+\preg{¿Dónde está su kernel en el roofline?}
+Los dos a la derecha del cruce de 0,125 op/byte: el anterior en \IntensidadOp{} y el final en 0,25.
+Limitados por cómputo. Por eso en el anterior se aceleró la multiplicación y no la memoria.
+
+\preg{¿El speedup medido coincide con Amdahl?}
+Predicho \AmdahlPredMul, medido \AmdahlMedMul. La predicción supuso el peor caso de \texttt{mul8}.
+
+\preg{¿Cuánto tarda su peor tick?}
+\ExtCiclosPeor{} ciclos con el algoritmo final (\ExtPctRtres\,\% de la ronda 3). El anterior:
+\CiclosPeorMul{} con \texttt{mul8} y \CiclosPeorSw{} solo software.
+
+%=============================================================================
+\section*{Parte C. Números para saberse}
+\addcontentsline{toc}{section}{Parte C. Números para saberse}
+\begin{center}\small
+\begin{tabular}{p{6.2cm}p{9.3cm}}
+\toprule
+Regla & dentro si $p \le$ piso (100, luego 120); fuera si $p \ge$ techo (255, luego 225) \\
+Ventanas evaluadas & \NVentanas{} (META, AAPL, NFLX, AMD, TSLA, 2022--2024) \\
+20.000 ticks: geo / mediana / peor & \ExtGeo{} / \ExtMediana{} / \ExtPeor{} (CyM \CymGeo) \\
+Prob. de perder (agente, CyM, anterior) & \ExtPierde\,\%, \CymPierde\,\%, \TendPierde\,\% \\
+2000 ticks: geo (CyM) & \ExtCortaGeo{} (\CymCortaGeo) \\
+Práctica nueva completa: agente / CyM & \$\MetaW{} / \$\MetaCym \\
+Testbench: serie por defecto; práctica nueva & \TbAprobados; \TbMetaAprobados, \$\TbMetaW \\
+Programa final: palabras; ciclos prom./peor & \ExtPalabras; \ExtCiclosProm{} / \ExtCiclosPeor{} (de \Presupuesto) \\
+Celdas del diseño final; $f_\text{máx}$ & \LCSw{} de 1280; \FmaxSw\,MHz \\
+\midrule
+Anterior: ciclos/tick (sw, shift, mul8) & \CiclosPromSw, \CiclosPromShift, \CiclosPromMul \\
+Anterior: fracción en multiplicación (sw) & \FracMul\,\% \\
+Amdahl mul8: predicho / medido / máximo & \AmdahlPredMul{} / \AmdahlMedMul{} / \AmdahlMaxMul \\
+Celdas: P2, sw, shift, mul8, las dos & \LCOriginal, \LCSw, \LCShift, \LCMul, \LCMulShift{} (de 1280) \\
+\bottomrule
+\end{tabular}
+\end{center}
+
+\end{document}
