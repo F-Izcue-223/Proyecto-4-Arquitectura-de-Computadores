@@ -1,0 +1,11 @@
+\begin{tabular}{lrrrrrrrr}
+\toprule
+Variante & LC & \% HX1K & LUT4 & FF & BRAM & $f_\text{máx}$ [MHz] & Ciclos/tick & Mops útiles/s \\
+\midrule
+SoC del P2 & 1191 & 93,0 & 1013 & 327 & 12 & 42,5--45,5 & 406,6 & 1,32 \\
+solo software & 985 & 77,0 & 897 & 210 & 12 & 45,7--46,6 & 406,6 & 1,32 \\
+shifter & 1253 & 97,9 & 1165 & 210 & 12 & 41,3--43,3 & 382,6 & 1,40 \\
+mul8 & 1185 & 92,6 & 1058 & 282 & 12 & 46,7--47,4 & 133,4 & 4,02 \\
+mul8 + shifter$^\dagger$ & 1444 & 112,8 & 1316 & 282 & 12 & no cabe & 109,4 & 4,91 \\
+\bottomrule
+\end{tabular}
